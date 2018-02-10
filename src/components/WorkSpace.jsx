@@ -1,17 +1,9 @@
 import React from 'react'
 import CrossHair from './CrossHair.jsx'
 import Grid from './Grid.jsx'
+import Rulers from './Rulers/index.jsx'
 
-const style = {
-  backgroundColor: '#fff',
-  width: '900px',
-  height: '600px',
-  margin: '2em auto',
-  overflow: 'hidden',
-  position: 'relative'
-}
-
-class Outer extends React.Component {
+class WorkSpace extends React.Component {
 
   constructor(props) {
     super(props)
@@ -19,18 +11,30 @@ class Outer extends React.Component {
       scale: 1,
       lastclientX : 100,
       lastclientY : 100,
-      vbh : 200,
-      vbw : 300,
+      vbh : 0,
+      vbw : 0,
       vbx : 0,
       vby : 0,
-      pointer: { x: 0, y: 0}
+      pointer: { x: 0, y: 0},
+      style: {
+        backgroundColor: '#fff',
+        width: '100%',
+        height: '100%',
+        margin: 0,
+        overflow: 'hidden',
+        position: 'relative'
+      }
     }
   }
 
   componentDidMount() {
     const rect = this.svgElement.getBoundingClientRect()
+
+    window.addEventListener('keypress', this._onKeyPress)
     this.setState(state => ({
-      scale: rect.width / state.vbw
+      vbw: rect.width,
+      vbh: rect.height,
+      scale: 1
     }))
   }
 
@@ -59,6 +63,26 @@ class Outer extends React.Component {
         }
       })
     })
+  }
+
+  _onKeyPress = (e) => {
+    if (e.keyCode === 32) {
+      this.setState(state => ({
+        style: {...state.style, cursor: 'move'}
+      }))
+      window.addEventListener('mousemove', this._onDrag)
+      window.addEventListener('keyup', this._onSpaceUp)
+    }
+  }
+
+  _onSpaceUp = (e) => {
+    if (e.keyCode === 32) {
+      window.removeEventListener('keyup', this._onSpaceUp)
+      window.removeEventListener('mousemove', this._onDrag)
+      this.setState(state => ({
+        style: {...state.style, cursor: 'auto'}
+      }))
+    }
   }
 
   _onMouseDown = (e) => {
@@ -107,7 +131,7 @@ class Outer extends React.Component {
 
 
   render() {
-    const { vbx, vby, vbh, vbw, scale, pointer } = this.state
+    const { vbx, vby, vbh, vbw, scale, pointer, style } = this.state
 
     return (
       <div style={style}>
@@ -116,17 +140,11 @@ class Outer extends React.Component {
             viewBox={`${vbx} ${vby} ${vbw} ${vbh}`}
             preserveAspectRatio="xMidYMid meet"
             onWheel={this._onWheel}
-            onMouseDown={this._onMouseDown}
             onMouseMove={this._onMouseMove}
             ref={(svgElement) => {this.svgElement = svgElement} }
           >
             <Grid {...this.state} />
-            <rect x="-5" y="-5" width="220" height="220" style={{
-                strokeWidth: 2,
-                stroke: 'black',
-                fill: 'none'
-              }}
-            />
+
             {this.props.children}
 
             <CrossHair
@@ -138,6 +156,7 @@ class Outer extends React.Component {
               y={pointer.y}
               scale={scale}
             />
+            <Rulers {...this.state} />
           </svg>
 
       </div>
@@ -145,4 +164,4 @@ class Outer extends React.Component {
   }
 }
 
-export default Outer
+export default WorkSpace

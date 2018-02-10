@@ -2,7 +2,12 @@ import React from 'react'
 
 export default (props) => {
   const { vbx, vby, vbw, vbh, scale } = props
-  const interval = 10
+  const interval = 100
+  const minSpacing = 10
+
+  if (interval * scale < minSpacing) {
+    return null
+  }
 
   const left = Math.ceil(vbx)
   const right = Math.floor(vbx+vbw)
@@ -23,14 +28,16 @@ export default (props) => {
   }
 
   const strokeWidth = 0.5 / scale
-  const stroke = "rgb(128,128,255)"
+  const stroke = "rgb(180,180,255)"
+
+
   return (
     <g strokeWidth={strokeWidth} stroke={stroke}>
-      {xs.map(x => (
-        <line x1={x} x2={x} y1={vby} y2={vby+vbh} />
+      {xs.map((x, i) => (
+        <line key={i} x1={x} x2={x} y1={vby} y2={vby+vbh} />
       ))}
-      {ys.map(y => (
-        <line y1={y} y2={y} x1={vbx} x2={vbx+vbw} />
+      {ys.map((y, i) => (
+        <line key={i} y1={y} y2={y} x1={vbx} x2={vbx+vbw} />
       ))}
     </g>
   )
