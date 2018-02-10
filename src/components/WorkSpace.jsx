@@ -2,6 +2,7 @@ import React from 'react'
 import CrossHair from './CrossHair.jsx'
 import Grid from './Grid.jsx'
 import Rulers from './Rulers/index.jsx'
+import ModelSpace from './ModelSpace'
 
 class WorkSpace extends React.Component {
 
@@ -9,8 +10,10 @@ class WorkSpace extends React.Component {
     super(props)
     this.state = {
       scale: 1,
-      lastclientX : 100,
-      lastclientY : 100,
+      lastClientX : 0,
+      lastClientY : 0,
+      previousClientX : 0,
+      previousClientY : 0,
       vbh : 0,
       vbw : 0,
       vbx : 0,
@@ -30,10 +33,12 @@ class WorkSpace extends React.Component {
   componentDidMount() {
     const rect = this.svgElement.getBoundingClientRect()
 
-    window.addEventListener('keypress', this._onKeyPress)
+    window.addEventListener('keydown', this._onSpaceDown)
     this.setState(state => ({
       vbw: rect.width,
       vbh: rect.height,
+      vbx: -(rect.width / 2),
+      vby: -(rect.height / 2),
       scale: 1
     }))
   }
@@ -50,7 +55,7 @@ class WorkSpace extends React.Component {
       const weightTop   = (zoomOriginY / rect.height)
 
       const aspect = rect.width / rect.height
-      let zf = e.deltaY * 0.1
+      let zf = e.deltaY
 
       this.setState(state => {
         const vbw = state.vbw + zf * aspect
@@ -65,11 +70,13 @@ class WorkSpace extends React.Component {
     })
   }
 
-  _onKeyPress = (e) => {
+  _onSpaceDown = (e) => {
     if (e.keyCode === 32) {
+      window.removeEventListener('keydown', this._onSpaceDown)
       this.setState(state => ({
         style: {...state.style, cursor: 'move'}
       }))
+
       window.addEventListener('mousemove', this._onDrag)
       window.addEventListener('keyup', this._onSpaceUp)
     }
@@ -82,27 +89,20 @@ class WorkSpace extends React.Component {
       this.setState(state => ({
         style: {...state.style, cursor: 'auto'}
       }))
+      window.addEventListener('keydown', this._onSpaceDown)
     }
   }
 
   _onMouseDown = (e) => {
     e.preventDefault()
-    window.addEventListener('mousemove', this._onDrag)
-    window.addEventListener('mouseup', this._onMouseUp)
-    this.setState({
-      lastclientX: e.clientX,
-      lastclientY: e.clientY
-    })
   }
 
   _onDrag = (e) => {
     requestAnimationFrame(() => {
       this.setState(state => {
-        const deltaX = (e.clientX - state.lastclientX) / state.scale
-        const deltaY = (e.clientY - state.lastclientY) / state.scale
+        const deltaX = (e.clientX - state.previousClientX) / state.scale
+        const deltaY = (e.clientY - state.previousClientY) / state.scale
         return {
-          lastclientX: e.clientX,
-          lastclientY: e.clientY,
           vbx: state.vbx - deltaX,
           vby: state.vby - deltaY,
         }
@@ -110,17 +110,17 @@ class WorkSpace extends React.Component {
     })
   }
 
-  _onMouseUp = (e) => {
-    window.removeEventListener('mousemove', this._onDrag)
-    window.removeEventListener('mouseup', this._onMouseUp)
-  }
-
   _onMouseMove = (e) => {
+    e.persist()
     const rect = this.svgElement.getBoundingClientRect()
     const xOffset = e.clientX - rect.left
     const yOffset = e.clientY - rect.top
     requestAnimationFrame(() => {
       this.setState(state => ({
+        previousClientX: state.lastClientX,
+        previousClientY: state.lastClientY,
+        lastClientX: e.clientX,
+        lastClientY: e.clientY,
         pointer: {
           x: state.vbx + (xOffset / state.scale),
           y: state.vby + (yOffset / state.scale)
@@ -141,11 +141,12 @@ class WorkSpace extends React.Component {
             preserveAspectRatio="xMidYMid meet"
             onWheel={this._onWheel}
             onMouseMove={this._onMouseMove}
+            onMouseDown={this._onMouseDown}
             ref={(svgElement) => {this.svgElement = svgElement} }
           >
             <Grid {...this.state} />
 
-            {this.props.children}
+            <ModelSpace x={vbx} y={vby} width={vbw} height={vbh} />
 
             <CrossHair
               top={vby}
