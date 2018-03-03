@@ -7,13 +7,12 @@ const ModelSpace = (props) => {
   const { x, y, width, height } = props
   return (
     <svg x={x} y={y} width={width} height={height} viewBox={`${x} ${y} ${width} ${height}`}>
-      <g strokeWidth="1" stroke="#000" fill="none">
+      <g strokeWidth="1" stroke="#000" fill='rgba(255,255,255,0)'>
         {shapes.map((shape, idx) => <Shape key={idx} shape={shape} />)}
       </g>
     </svg>
   )
 }
-
 
 const mapStateToProps = (state) => ({
   shapes: state.shapes

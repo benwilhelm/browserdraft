@@ -1,7 +1,6 @@
 import React from 'react'
 import Selectable from '../../behaviors/Selectable'
 
-
 const getShapeAnchors = (shape) => {
   const geo = shape.geometry
   switch(shape.type.toLowerCase()) {
@@ -29,9 +28,9 @@ class Shape extends React.Component {
   }
 
   render() {
-    const { shape } = this.props
+    const { shape, handlers } = this.props
     const TagName = shape.type
-    return <TagName {...shape.geometry} {...shape.style} />
+    return <TagName {...shape.geometry} {...shape.style} {...handlers} />
   }
 }
 

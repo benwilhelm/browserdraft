@@ -2,7 +2,9 @@ import React from 'react'
 import CrossHair from './CrossHair.jsx'
 import Grid from './Grid.jsx'
 import Rulers from './Rulers/index.jsx'
-import ModelSpace from './ModelSpace'
+import ModelSpace from './ModelSpace.jsx'
+import { deselectAll } from '../store'
+import { connect } from 'react-redux'
 
 class WorkSpace extends React.Component {
 
@@ -134,7 +136,7 @@ class WorkSpace extends React.Component {
     const { vbx, vby, vbh, vbw, scale, pointer, style } = this.state
 
     return (
-      <div style={style}>
+      <div style={style} onClick={this.props.handleBackgroundClick}>
           <svg
             style={{ width: '100%', height: '100%' }}
             viewBox={`${vbx} ${vby} ${vbw} ${vbh}`}
@@ -144,7 +146,8 @@ class WorkSpace extends React.Component {
             onMouseDown={this._onMouseDown}
             ref={(svgElement) => {this.svgElement = svgElement} }
           >
-            <Grid {...this.state} />
+
+            <Grid {...this.state}  onClick={() => console.log('click?')} />
 
             <ModelSpace x={vbx} y={vby} width={vbw} height={vbh} />
 
@@ -165,4 +168,12 @@ class WorkSpace extends React.Component {
   }
 }
 
-export default WorkSpace
+const mapState = () => ({})
+
+const mapDispatch = (dispatch) => ({
+  handleBackgroundClick(e) {
+    dispatch(deselectAll())
+  }
+})
+
+export default connect(mapState, mapDispatch)(WorkSpace)
