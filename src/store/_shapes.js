@@ -1,6 +1,7 @@
 const shapes = [
   {
-    type: "rect",
+    id: 'a',
+    type: 'rect',
     geometry: {
       x      : 100,
       y      : 100,
@@ -9,7 +10,8 @@ const shapes = [
     },
     style: {}
   },{
-    type: "rect",
+    id: 'b',
+    type: 'rect',
     geometry: {
       x      : 400,
       y      : 0,
@@ -22,7 +24,8 @@ const shapes = [
       strokeWidth: 4
     }
   },{
-    type: "line",
+    id: 'c',
+    type: 'line',
     geometry: {
       x1: -10,
       y1: -100,
@@ -31,8 +34,8 @@ const shapes = [
     },
     style: {
       strokeWidth: 2,
-      stroke: "black",
-      fill: "rgb(0,0,0)"
+      stroke: 'black',
+      fill: 'rgb(0,0,0)'
     }
   }
 ]
