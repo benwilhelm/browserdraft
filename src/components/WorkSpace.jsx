@@ -147,7 +147,7 @@ class WorkSpace extends React.Component {
             ref={(svgElement) => {this.svgElement = svgElement} }
           >
 
-            <Grid {...this.state}  onClick={() => console.log('click?')} />
+            <Grid {...this.state} />
 
             <ModelSpace x={vbx} y={vby} width={vbw} height={vbh} />
 
